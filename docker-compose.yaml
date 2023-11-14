@@ -1,0 +1,216 @@
+version: "3.9"
+x-default-logging: &logging
+  # driver: "json-file"
+  # options:
+  #   max-size: "5m"
+  #   max-file: "2"
+  driver: loki
+  options:
+    loki-url: http://127.0.0.1:3100/loki/api/v1/push
+
+services:
+  ########
+  # Mimir
+  #######
+  minio:
+    image: minio/minio
+    entrypoint: [""]
+    command: ["sh", "-c", "mkdir -p /data/mimir && minio server --quiet /data --address :9000 --console-address :9001"]
+    environment:
+      - MINIO_ROOT_USER=mimir
+      - MINIO_ROOT_PASSWORD=supersecret
+    volumes:
+      - minio-data:/data
+    ports:
+      - 9001:9001
+    logging: *logging
+
+  mimir:
+    image: grafana/mimir:latest
+    command:
+      - "-config.file=/etc/mimir.yaml"
+    hostname: mimir
+    depends_on:
+      - minio
+    volumes:
+      - ./config/mimir.yaml:/etc/mimir.yaml
+      - ./config/alertmanager-fallback-config.yaml:/etc/alertmanager-fallback-config.yaml
+      - mimir-data:/data
+    ports:
+      - 9009:9009
+    logging: *logging
+
+  #######################
+  # Prometheus
+  #######################
+
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    command:
+      - --web.console.templates=/etc/prometheus/consoles
+      - --web.console.libraries=/etc/prometheus/console_libraries
+      - --web.enable-remote-write-receiver # tempoからのremote-write受信のため
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --web.enable-lifecycle
+      - --web.route-prefix=/
+    volumes:
+      - "./config/prometheus.yml:/etc/prometheus/prometheus.yml"
+      - "./config/rules.yaml:/etc/prometheus/rules.yaml"
+    logging: *logging
+
+  alertmanager:
+    image: prom/alertmanager:latest
+    ports:
+      - "9093:9093"
+    volumes:
+      - ./config/alertmanager.yml:/etc/alertmanager/alertmanager.yml
+    logging: *logging
+
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: node-exporter
+    restart: unless-stopped
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - "--path.procfs=/host/proc"
+      - "--path.rootfs=/rootfs"
+      - "--path.sysfs=/host/sys"
+      - "--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)"
+    expose:
+      - 9100
+    logging: *logging
+
+  ########################
+  # Loki
+  ########################
+  loki:
+    image: grafana/loki:latest
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+    volumes:
+      - loki-data:/data/loki
+    logging: *logging
+
+  promtail:
+    image: grafana/promtail:latest
+    volumes:
+      - /var/log:/var/log:ro
+      - ./config/promtail-local-config.yaml:/etc/promtail/config.yaml:ro
+    command: -config.file=/etc/promtail/config.yml
+    logging: *logging
+
+  grafana:
+    environment:
+      - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./config/grafana.ini:/etc/grafana/grafana.ini
+      - ./provisioning/:/etc/grafana/provisioning/
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    logging: *logging
+
+  mailhog:
+    image: mailhog/mailhog:v1.0.1
+    ports:
+      - "8025:8025"
+    logging: *logging
+
+  ###################
+  # Tempo
+  ##################
+  tempo:
+    image: grafana/tempo:latest
+    command: ["-config.file=/etc/tempo.yaml"]
+    volumes:
+      - ./config/tempo.yaml:/etc/tempo.yaml
+      - tempo-data:/tmp/tempo
+    ports:
+      - "14268" # jaeger ingest
+      - "3200" # tempo
+      - "4317" # otlp grpc
+      - "4318" # otlp http
+      - "9411" # zipkin
+
+  ####################
+  # OTEL
+  ##################
+  # Generate fake traces...
+  # k6-tracing:
+  #   image: ghcr.io/grafana/xk6-client-tracing:v0.0.2
+  #   environment:
+  #     - ENDPOINT=otel-collector:4317
+  #   restart: always
+  #   depends_on:
+  #     - otel-collector
+
+  # And put them in an OTEL collector pipeline...
+  otel-collector:
+    # image: otel/opentelemetry-collector:0.61.0
+    image: otel/opentelemetry-collector-contrib:0.84.0
+    command:
+      - "--config=/etc/otelcol-config.yml"
+      - "--config=/etc/otelcol-observability.yml"
+    volumes:
+      - ./config/otelcol-config.yml:/etc/otelcol-config.yml
+      - ./config/otelcol-observability.yml:/etc/otelcol-observability.yml
+    ports:
+      - "4317" # OTLP over gRPC receiver
+      - "4318:4318" # OTLP over HTTP receiver
+      - "9464" # Prometheus exporter
+      - "8888" # metrics endpoint
+
+
+  ######
+  ## App
+  #######
+  java-demo-app:
+    build: ./java-demo-app
+    environment:
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318
+      - OTEL_RESOURCE_ATTRIBUTES=deployment.environment=prod,service.version=0.0.1
+      - OTEL_SERVICE_NAME=java-demo-app
+      - VERSION=0.0.1
+      - ENV=prod
+    ports:
+      - 8081
+    logging: *logging
+
+  golang-demo-app:
+    build: ./golang-demo-app
+    environment:
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318
+      - OTEL_RESOURCE_ATTRIBUTES=deployment.environment=prod,service.version=0.0.1
+      - OTEL_SERVICE_NAME=golang-demo-app
+      - VERSION=0.0.1
+      - ENV=prod
+    ports:
+      - 3001:3000
+    logging: *logging
+  
+  envoyproxy:
+    build: ./frontendproxy
+    environment:
+      - OTEL_COLLECTOR_HOST=otel-collector
+      - OTEL_COLLECTOR_PORT_GRPC=4317
+      - OTEL_COLLECTOR_PORT_HTTP=4318
+    ports:
+      - 8080:8080
+
+volumes:
+  minio-data:
+  mimir-data:
+  grafana-data:
+  loki-data:
+  tempo-data:
