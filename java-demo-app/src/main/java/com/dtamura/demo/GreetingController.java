@@ -19,13 +19,8 @@ public class GreetingController {
 
    private Tracer tracer;
 
-   private NormalClass normal;
-   private OpenTelemetry openTelemetry;
-
    public GreetingController(OpenTelemetry openTelemetry) {
-      this.openTelemetry = openTelemetry;
       this.tracer = openTelemetry.getTracer(GreetingController.class.getName(), "0.1.0");
-      this.normal = new NormalClass(openTelemetry);
    }
 
    @GetMapping("/greeting")
@@ -48,8 +43,6 @@ public class GreetingController {
          span.setAttribute("ThreadID", id);
          System.out.println("Thread ID: " + id);
          fuga();
-         normalRun();
-         threadRun();
       } finally {
          span.end();
       }
@@ -59,31 +52,4 @@ public class GreetingController {
       Span span = tracer.spanBuilder("fuga").startSpan();
       span.end();
    }
-
-   public void normalRun() {
-      Span span = tracer.spanBuilder("normalRun").startSpan();
-      try (Scope scope = span.makeCurrent()) {
-         normal.piyo();
-      }
-      span.end();
-   }
-
-   public void threadRun() {
-      Span span = tracer.spanBuilder("threadRun").startSpan();
-      try (Scope scope = span.makeCurrent()) {
-         Thread thread = new Thread(new ThreadClass(openTelemetry, span));
-
-         thread.start();
-         try {
-            // スレッドが終了するのを待つ。
-            thread.join();
-         } catch (InterruptedException e) {
-            e.printStackTrace();
-         }
-
-      }
-      span.end();
-
-   }
-
 }

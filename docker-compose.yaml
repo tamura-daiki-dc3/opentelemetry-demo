@@ -184,7 +184,7 @@ services:
       - VERSION=0.0.1
       - ENV=prod
     ports:
-      - 8081
+      - 8081:8081
     logging: *logging
 
   golang-demo-app:
