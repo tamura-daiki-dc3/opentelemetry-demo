@@ -38,6 +38,8 @@ static_resources:
                           route: { cluster: golang-demo-app }
                         - match: { prefix: "/greeting" }
                           route: { cluster: java-demo-app }
+                        - match: { prefix: "/" }
+                          route: { cluster: frontend }
                 http_filters:
                   - name: envoy.filters.http.router
                     typed_config:
@@ -97,6 +99,18 @@ static_resources:
                     socket_address:
                       address: java-demo-app
                       port_value: 8081
+    - name: frontend
+      type: STRICT_DNS
+      lb_policy: ROUND_ROBIN
+      load_assignment:
+        cluster_name: frontend
+        endpoints:
+          - lb_endpoints:
+              - endpoint:
+                  address:
+                    socket_address:
+                      address: frontend
+                      port_value: 3000
 admin:
   address:
     socket_address:
