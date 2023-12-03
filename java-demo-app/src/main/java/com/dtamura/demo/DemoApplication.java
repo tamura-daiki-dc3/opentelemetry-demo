@@ -35,11 +35,13 @@ public class DemoApplication {
 
 	@Bean
 	public OpenTelemetry openTelemetry() {
+
 		Resource resource = Resource.getDefault().toBuilder()
 				.put(ResourceAttributes.SERVICE_NAME, DemoApplication.class.getName())
 				.put(ResourceAttributes.SERVICE_VERSION, "0.1.0").build();
 
-		OtlpGrpcSpanExporter spanExporter = OtlpGrpcSpanExporter.getDefault();
+		OtlpGrpcSpanExporter spanExporter = OtlpGrpcSpanExporter.builder().setEndpoint("http://otel-collector:4317")
+				.build();
 
 		SdkTracerProvider sdkTracerProvider = SdkTracerProvider.builder()
 				.addSpanProcessor(SimpleSpanProcessor.create(LoggingSpanExporter.create())) // ログに残す
@@ -63,7 +65,8 @@ public class DemoApplication {
 				.setLoggerProvider(sdkLoggerProvider)
 				.setPropagators(ContextPropagators.create(TextMapPropagator
 						.composite(W3CTraceContextPropagator.getInstance(), W3CBaggagePropagator.getInstance())))
-				.buildAndRegisterGlobal();
+				// .buildAndRegisterGlobal();
+				.build();
 
 		return openTelemetry;
 	}

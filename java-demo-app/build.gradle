@@ -21,7 +21,7 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
 
-	// implementation(platform("io.opentelemetry:opentelemetry-bom:1.31.0"));
+	implementation(platform("io.opentelemetry:opentelemetry-bom:1.31.0"));
 	implementation("io.opentelemetry:opentelemetry-api");
 	implementation("io.opentelemetry:opentelemetry-api-logs:1.26.0-alpha");
 	implementation("io.opentelemetry:opentelemetry-sdk:1.31.0");
@@ -29,6 +29,8 @@ dependencies {
     implementation("io.opentelemetry:opentelemetry-exporter-logging:1.31.0");
 	implementation("io.opentelemetry:opentelemetry-exporter-otlp");
     implementation("io.opentelemetry.semconv:opentelemetry-semconv:1.22.0-alpha");
+	implementation("io.opentelemetry:opentelemetry-sdk-extension-autoconfigure");
+	implementation("io.opentelemetry:opentelemetry-sdk-extension-autoconfigure-spi");
 }
 
 tasks.named('test') {
