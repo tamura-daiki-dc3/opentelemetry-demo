@@ -37,12 +37,6 @@ scrape_configs:
         type: A
         port: 9080
 
-  - job_name: demo/mimir
-    static_configs:
-      - targets: ["mimir:9009"]
-        labels:
-          pod: "mimir"
-
   - job_name: "tempo"
     static_configs:
       - targets: ["tempo:3200"]
@@ -60,9 +54,3 @@ scrape_configs:
 # remote_write:
 #   - url: http://victoriametrics:8428/api/v1/write
 
-remote_write:
-  - url: http://mimir:9009/api/v1/push
-    # Add X-Scope-OrgID header so that Mimir knows what tenant the remote write data should be stored in.
-    # In this case, our tenant is "demo"
-    headers:
-      X-Scope-OrgID: demo
