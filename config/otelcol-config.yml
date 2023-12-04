@@ -14,6 +14,15 @@ receivers:
 
 exporters:
   logging:
+  file/traces:
+    path: /tmp/otel-logs/traces.log
+    format: json
+  file/metrics:
+    path: /tmp/otel-logs/metrics.log
+    format: json
+  file/logs:
+    path: /tmp/otel-logs/logs.log
+    format: json
 
 processors:
   batch:
@@ -32,12 +41,15 @@ service:
     traces:
       receivers: [otlp]
       processors: [batch]
-      exporters: [logging, spanmetrics]
+#      exporters: [logging, spanmetrics]
+      exporters: [logging, spanmetrics, file/traces]
     metrics:
       receivers: [otlp, spanmetrics]
       processors: [filter, batch]
-      exporters: [logging]
+#      exporters: [logging]
+      exporters: [logging, file/metrics]
     logs:
       receivers: [otlp]
       processors: [batch]
-      exporters: [logging]
+#      exporters: [logging]
+      exporters: [logging, file/logs]

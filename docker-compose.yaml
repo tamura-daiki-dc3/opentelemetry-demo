@@ -1,12 +1,12 @@
 version: "3.9"
 x-default-logging: &logging
-  # driver: "json-file"
-  # options:
-  #   max-size: "5m"
-  #   max-file: "2"
-  driver: loki
-  options:
-    loki-url: http://127.0.0.1:3100/loki/api/v1/push
+   driver: "json-file"
+   options:
+     max-size: "5m"
+     max-file: "2"
+  #driver: loki
+  #options:
+  #  loki-url: http://127.0.0.1:3100/loki/api/v1/push
 
 services:
   ########
@@ -157,6 +157,7 @@ services:
     volumes:
       - ./config/otelcol-config.yml:/etc/otelcol-config.yml
       - ./config/otelcol-observability.yml:/etc/otelcol-observability.yml
+      - /tmp/otel-logs:/tmp/otel-logs
     ports:
       - "4317" # OTLP over gRPC receiver
       - "4318:4318" # OTLP over HTTP receiver

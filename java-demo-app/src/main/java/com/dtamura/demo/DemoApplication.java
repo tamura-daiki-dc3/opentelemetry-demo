@@ -24,6 +24,7 @@ import io.opentelemetry.sdk.trace.SdkTracerProvider;
 import io.opentelemetry.sdk.trace.export.BatchSpanProcessor;
 import io.opentelemetry.sdk.trace.export.SimpleSpanProcessor;
 import io.opentelemetry.semconv.ResourceAttributes;
+import io.opentelemetry.exporter.otlp.logs.OtlpGrpcLogRecordExporter;
 
 @SpringBootApplication
 @RestController
@@ -55,7 +56,8 @@ public class DemoApplication {
 				.build();
 
 		SdkLoggerProvider sdkLoggerProvider = SdkLoggerProvider.builder()
-				.addLogRecordProcessor(BatchLogRecordProcessor.builder(SystemOutLogRecordExporter.create()).build())
+//				.addLogRecordProcessor(BatchLogRecordProcessor.builder(SystemOutLogRecordExporter.create()).build())
+//				.addLogRecordProcessor(BatchLogRecordProcessor.builder(OtlpGrpcLogRecordExporter.builder().setEndpoint("http://otel-collector:4317").build()).build())
 				.setResource(resource)
 				.build();
 
