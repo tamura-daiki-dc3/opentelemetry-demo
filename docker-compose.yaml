@@ -9,36 +9,6 @@ x-default-logging: &logging
     loki-url: http://127.0.0.1:3100/loki/api/v1/push
 
 services:
-  ########
-  # Mimir
-  #######
-  minio:
-    image: minio/minio
-    entrypoint: [""]
-    command: ["sh", "-c", "mkdir -p /data/mimir && minio server --quiet /data --address :9000 --console-address :9001"]
-    environment:
-      - MINIO_ROOT_USER=mimir
-      - MINIO_ROOT_PASSWORD=supersecret
-    volumes:
-      - minio-data:/data
-    ports:
-      - 9001:9001
-    logging: *logging
-
-  mimir:
-    image: grafana/mimir:latest
-    command:
-      - "-config.file=/etc/mimir.yaml"
-    hostname: mimir
-    depends_on:
-      - minio
-    volumes:
-      - ./config/mimir.yaml:/etc/mimir.yaml
-      - ./config/alertmanager-fallback-config.yaml:/etc/alertmanager-fallback-config.yaml
-      - mimir-data:/data
-    ports:
-      - 9009:9009
-    logging: *logging
 
   #######################
   # Prometheus
@@ -58,7 +28,6 @@ services:
       - --web.route-prefix=/
     volumes:
       - "./config/prometheus.yml:/etc/prometheus/prometheus.yml"
-      - "./config/rules.yaml:/etc/prometheus/rules.yaml"
     logging: *logging
 
   alertmanager:
@@ -176,12 +145,6 @@ services:
 
   java-demo-app:
     build: ./java-demo-app
-    environment:
-      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318
-      - OTEL_RESOURCE_ATTRIBUTES=deployment.environment=prod,service.version=0.0.1
-      - OTEL_SERVICE_NAME=java-demo-app
-      - VERSION=0.0.1
-      - ENV=prod
     ports:
       - 8081:8081
     logging: *logging
