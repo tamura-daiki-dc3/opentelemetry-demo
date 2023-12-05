@@ -56,8 +56,8 @@ public class DemoApplication {
 				.build();
 
 		SdkLoggerProvider sdkLoggerProvider = SdkLoggerProvider.builder()
-//				.addLogRecordProcessor(BatchLogRecordProcessor.builder(SystemOutLogRecordExporter.create()).build())
-//				.addLogRecordProcessor(BatchLogRecordProcessor.builder(OtlpGrpcLogRecordExporter.builder().setEndpoint("http://otel-collector:4317").build()).build())
+				.addLogRecordProcessor(BatchLogRecordProcessor.builder(SystemOutLogRecordExporter.create()).build())
+				.addLogRecordProcessor(BatchLogRecordProcessor.builder(OtlpGrpcLogRecordExporter.builder().setEndpoint("http://otel-collector:4317").build()).build())
 				.setResource(resource)
 				.build();
 
