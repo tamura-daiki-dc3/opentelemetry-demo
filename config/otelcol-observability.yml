@@ -2,10 +2,10 @@
 # SPDX-License-Identifier: Apache-2.0
 
 exporters:
-  otlp:
-    endpoint: "jaeger:4317"
-    tls:
-      insecure: true
+#  otlp:
+#    endpoint: "jaeger:4317"
+#    tls:
+#      insecure: true
   otlp/tempo:
     endpoint: "tempo:4317"
     tls:
@@ -19,6 +19,7 @@ exporters:
 service:
   pipelines:
     traces:
-      exporters: [otlp, logging, spanmetrics, otlp/tempo]
+      exporters: [logging, spanmetrics, otlp/tempo]
+#      exporters: [otlp, logging, spanmetrics, otlp/tempo]
     metrics:
       exporters: [prometheus, logging]
