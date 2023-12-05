@@ -157,7 +157,7 @@ services:
     volumes:
       - ./config/otelcol-config.yml:/etc/otelcol-config.yml
       - ./config/otelcol-observability.yml:/etc/otelcol-observability.yml
-      - /tmp/otel-logs:/tmp/otel-logs
+      - /tmp:/tmp/otel-logs
     ports:
       - "4317" # OTLP over gRPC receiver
       - "4318:4318" # OTLP over HTTP receiver

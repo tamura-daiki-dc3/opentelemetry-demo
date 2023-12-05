@@ -41,15 +41,12 @@ service:
     traces:
       receivers: [otlp]
       processors: [batch]
-      exporters: [logging, spanmetrics]
-#      exporters: [logging, spanmetrics, file/traces]
+      exporters: [logging, spanmetrics, file/traces]
     metrics:
       receivers: [otlp, spanmetrics]
       processors: [filter, batch]
-      exporters: [logging]
-#      exporters: [logging, file/metrics]
+      exporters: [logging, file/metrics]
     logs:
       receivers: [otlp]
       processors: [batch]
-      exporters: [logging]
-#      exporters: [logging, file/logs]
+      exporters: [logging, file/logs]

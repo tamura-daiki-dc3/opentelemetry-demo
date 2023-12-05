@@ -17,6 +17,9 @@ exporters:
     enable_open_metrics: true
 
 service:
+  telemetry:
+    logs:
+      level: info
   pipelines:
     traces:
       exporters: [logging, spanmetrics, otlp/tempo]
