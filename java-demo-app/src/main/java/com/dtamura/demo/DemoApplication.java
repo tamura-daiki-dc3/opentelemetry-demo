@@ -17,6 +17,7 @@ import io.opentelemetry.exporter.otlp.trace.OtlpGrpcSpanExporter;
 import io.opentelemetry.sdk.OpenTelemetrySdk;
 import io.opentelemetry.sdk.logs.SdkLoggerProvider;
 import io.opentelemetry.sdk.logs.export.BatchLogRecordProcessor;
+import io.opentelemetry.sdk.logs.export.SimpleLogRecordProcessor;
 import io.opentelemetry.sdk.metrics.SdkMeterProvider;
 import io.opentelemetry.sdk.metrics.export.PeriodicMetricReader;
 import io.opentelemetry.sdk.resources.Resource;
@@ -25,6 +26,7 @@ import io.opentelemetry.sdk.trace.export.BatchSpanProcessor;
 import io.opentelemetry.sdk.trace.export.SimpleSpanProcessor;
 import io.opentelemetry.semconv.ResourceAttributes;
 import io.opentelemetry.exporter.otlp.logs.OtlpGrpcLogRecordExporter;
+import io.opentelemetry.instrumentation.log4j.appender.v2_17.OpenTelemetryAppender;
 
 @SpringBootApplication
 @RestController
@@ -59,12 +61,12 @@ public class DemoApplication {
 				.build();
 
 		SdkLoggerProvider sdkLoggerProvider = SdkLoggerProvider.builder()
-				.addLogRecordProcessor(BatchLogRecordProcessor.builder(SystemOutLogRecordExporter.create()).build())
+				.addLogRecordProcessor(SimpleLogRecordProcessor.create(SystemOutLogRecordExporter.create()))
 				.addLogRecordProcessor(BatchLogRecordProcessor.builder(logRecordExporter).build())
 				.setResource(resource)
 				.build();
 
-		OpenTelemetry openTelemetry = OpenTelemetrySdk.builder()
+		OpenTelemetrySdk openTelemetrySdk = OpenTelemetrySdk.builder()
 				.setTracerProvider(sdkTracerProvider)
 				.setMeterProvider(sdkMeterProvider)
 				.setLoggerProvider(sdkLoggerProvider)
@@ -72,6 +74,8 @@ public class DemoApplication {
 						.composite(W3CTraceContextPropagator.getInstance(), W3CBaggagePropagator.getInstance())))
 				.build();
 
+		OpenTelemetryAppender.install(openTelemetrySdk);
+		OpenTelemetry openTelemetry = openTelemetrySdk;
 		return openTelemetry;
 	}
 }
