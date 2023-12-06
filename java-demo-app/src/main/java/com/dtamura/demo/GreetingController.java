@@ -20,8 +20,8 @@ public class GreetingController {
 
    // TODO Tracerプライベート変数を追加
 
-   // TODO コンストラクタにOpenTelemetryを追加
-   // TODO tracer変数を初期化
+   // TODO コンストラクタの引数にOpenTelemetryを追加
+   // TODO コンストラクタ内でtracer変数を初期化
    public GreetingController() {
    }
 
