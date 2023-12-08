@@ -23,7 +23,7 @@ func loggingHandler(c *gin.Context) {
 	raw := c.Request.URL.RawQuery
 
 	span := trace.SpanFromContext(c.Request.Context())
-
+	
 	c.Next()
 
 	now := time.Now()
@@ -44,6 +44,7 @@ func loggingHandler(c *gin.Context) {
 			"query":      raw,
 			"user-agent": userAgent,
 			"proto":      proto,
+			//"headers":    headersFromRequest(c.Request, span.SpanContext().TraceID().String()),
 			"headers":    headersFromRequest(c.Request),
 			"latency":    latency,
 			"error":      errorMessage,
@@ -63,6 +64,7 @@ func commonLogFieleds(span trace.Span) log.Fields {
 }
 
 func headersFromRequest(r *http.Request) log.Fields {
+//func headersFromRequest(r *http.Request, String traceId) log.Fields {
 	ipHeaders := []string{
 		"x-forwarded-for",
 		"x-real-ip",
@@ -82,6 +84,8 @@ func headersFromRequest(r *http.Request) log.Fields {
 			ips = append(ips, v)
 		}
 	}
+	//headers = append(headers, "X-Trace-Id")
+	//ips = append(ips, traceId)
 
 	result := log.Fields{}
 	for i := range headers {
