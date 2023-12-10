@@ -5,6 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.web.bind.annotation.RestController;
 
 // TODO import文を追加
+
 // ここまで
 
 @SpringBootApplication
@@ -16,6 +17,7 @@ public class DemoApplication {
 	}
 
 	// TODO OpenTelemetry初期化コードの追加
+
 	// ここまで
 
 }
