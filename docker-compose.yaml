@@ -30,31 +30,6 @@ services:
       - "./config/prometheus.yml:/etc/prometheus/prometheus.yml"
     logging: *logging
 
-  alertmanager:
-    image: prom/alertmanager:latest
-    ports:
-      - "9093:9093"
-    volumes:
-      - ./config/alertmanager.yml:/etc/alertmanager/alertmanager.yml
-    logging: *logging
-
-  node-exporter:
-    image: prom/node-exporter:latest
-    container_name: node-exporter
-    restart: unless-stopped
-    volumes:
-      - /proc:/host/proc:ro
-      - /sys:/host/sys:ro
-      - /:/rootfs:ro
-    command:
-      - "--path.procfs=/host/proc"
-      - "--path.rootfs=/rootfs"
-      - "--path.sysfs=/host/sys"
-      - "--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)"
-    expose:
-      - 9100
-    logging: *logging
-
   ########################
   # Loki
   ########################
@@ -88,12 +63,6 @@ services:
     image: grafana/grafana:latest
     ports:
       - "3000:3000"
-    logging: *logging
-
-  mailhog:
-    image: mailhog/mailhog:v1.0.1
-    ports:
-      - "8025:8025"
     logging: *logging
 
   ###################
