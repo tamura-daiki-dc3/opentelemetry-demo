@@ -64,7 +64,8 @@ public class GreetingController {
 
       Context extractedContext = this.openTelemetry.getPropagators().getTextMapPropagator()
             .extract(Context.current(), headers, this.getter);
-      Span span = tracer.spanBuilder("hello").setSpanKind(SpanKind.SERVER)
+
+      Span span = tracer.spanBuilder("greeting").setSpanKind(SpanKind.SERVER)
             .setParent(extractedContext).startSpan();
       try (Scope scope = span.makeCurrent()) {
          // span
