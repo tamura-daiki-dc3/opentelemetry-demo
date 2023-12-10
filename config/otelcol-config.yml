@@ -14,6 +14,21 @@ receivers:
 
 exporters:
   logging:
+    verbosity: detailed
+  otlp:
+    endpoint: "jaeger:4317"
+    tls:
+      insecure: true
+  otlp/tempo:
+    endpoint: "tempo:4317"
+    tls:
+      insecure: true
+  prometheus:
+    endpoint: "otel-collector:9464"
+    resource_to_telemetry_conversion:
+      enabled: true
+    enable_open_metrics: true
+
 
 processors:
   batch:
@@ -32,11 +47,11 @@ service:
     traces:
       receivers: [otlp]
       processors: [batch]
-      exporters: [logging, spanmetrics]
+      exporters: [logging, spanmetrics, otlp/tempo]
     metrics:
       receivers: [otlp, spanmetrics]
       processors: [filter, batch]
-      exporters: [logging]
+      exporters: [logging, prometheus]
     logs:
       receivers: [otlp]
       processors: [batch]
