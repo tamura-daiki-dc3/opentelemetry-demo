@@ -27,11 +27,11 @@ public class GreetingController {
    private static final String template = "Hello, %s!";
    private final AtomicLong counter = new AtomicLong();
 
-   private Logger logger = LogManager.getLogger(GreetingController.class.getName());
+   private final Logger logger = LogManager.getLogger(GreetingController.class.getName());
 
    // TODO Tracerプライベート変数を追加
-   private Tracer tracer;
-   private OpenTelemetry openTelemetry;
+   private final Tracer tracer;
+   private final OpenTelemetry openTelemetry;
 
    // HTTPヘッダから、トレースID等の情報を抽出するために使われるgetter関数
    private final TextMapGetter<HttpHeaders> getter = new TextMapGetter<HttpHeaders>() {
