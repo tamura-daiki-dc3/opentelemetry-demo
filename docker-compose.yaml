@@ -1,12 +1,9 @@
 version: "3.9"
 x-default-logging: &logging
-  # driver: "json-file"
-  # options:
-  #   max-size: "5m"
-  #   max-file: "2"
-  driver: loki
+  driver: "json-file"
   options:
-    loki-url: http://127.0.0.1:3100/loki/api/v1/push
+    max-size: "5m"
+    max-file: "2"
 
 services:
 
@@ -28,26 +25,6 @@ services:
       - --web.route-prefix=/
     volumes:
       - "./config/prometheus.yml:/etc/prometheus/prometheus.yml"
-    logging: *logging
-
-  ########################
-  # Loki
-  ########################
-  loki:
-    image: grafana/loki:latest
-    ports:
-      - "3100:3100"
-    command: -config.file=/etc/loki/local-config.yaml
-    volumes:
-      - loki-data:/data/loki
-    logging: *logging
-
-  promtail:
-    image: grafana/promtail:latest
-    volumes:
-      - /var/log:/var/log:ro
-      - ./config/promtail-local-config.yaml:/etc/promtail/config.yaml:ro
-    command: -config.file=/etc/promtail/config.yml
     logging: *logging
 
   grafana:
