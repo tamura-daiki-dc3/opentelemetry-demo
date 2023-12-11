@@ -138,8 +138,6 @@ services:
       - 8080:8080
 
 volumes:
-  minio-data:
-  mimir-data:
   grafana-data:
   loki-data:
   tempo-data:
