@@ -4,7 +4,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.web.bind.annotation.RestController;
 
-// TODO import文を追加
+// TODO (Trace) import文を追加
 import org.springframework.context.annotation.Bean;
 import io.opentelemetry.api.OpenTelemetry;
 import io.opentelemetry.exporter.otlp.trace.OtlpGrpcSpanExporter;
@@ -27,7 +27,7 @@ public class DemoApplication {
 		SpringApplication.run(DemoApplication.class, args);
 	}
 
-	// TODO OpenTelemetry初期化コードの追加
+	// TODO (Trace) OpenTelemetry初期化コードの追加
 	@Bean
 	public OpenTelemetry openTelemetry() {
 
