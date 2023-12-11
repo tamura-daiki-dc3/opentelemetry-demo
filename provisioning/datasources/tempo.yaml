@@ -16,8 +16,6 @@ datasources:
     httpMethod: GET
     serviceMap:
       datasourceUid: prometheus
-    lokiSearch:
-        datasourceUid: 'loki'
     tracesToLogs:
       datasourceUid: 'loki'
       tags: 
