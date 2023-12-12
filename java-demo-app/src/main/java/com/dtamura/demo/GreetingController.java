@@ -7,9 +7,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-// TODO (Trace) import文を追加ここから
+// TODO (Trace) import文を追加
 
-// ここまで
+// TODO (Metrics) import文を追加
 
 @RestController
 public class GreetingController {
@@ -41,6 +41,7 @@ public class GreetingController {
       logger.info("end greeting");
 
       // TODO (Metrics) カウンターを1ずつ増加するコードを追加
+
       return new Greeting(counter.incrementAndGet(), String.format(template, name));
    }
 

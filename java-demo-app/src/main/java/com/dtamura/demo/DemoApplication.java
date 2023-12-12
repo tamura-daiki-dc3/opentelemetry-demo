@@ -18,6 +18,8 @@ public class DemoApplication {
 
 	// TODO (Trace) OpenTelemetry初期化コードの追加
 
-	// TODO (Metrics) メトリクスの設定・OpenTelemetrySdkへ登録
+	// TODO (Metrics) メトリクスの設定
+
+	// TODO (Metrics) OpenTelemetrySdkへ登録
 
 }
