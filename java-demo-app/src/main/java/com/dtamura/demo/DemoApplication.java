@@ -18,6 +18,11 @@ import io.opentelemetry.api.trace.propagation.W3CTraceContextPropagator;
 import io.opentelemetry.context.propagation.ContextPropagators;
 import io.opentelemetry.context.propagation.TextMapPropagator;
 // TODO (Metrics) import文を追加
+import io.opentelemetry.exporter.logging.LoggingSpanExporter;
+import io.opentelemetry.exporter.otlp.metrics.OtlpGrpcMetricExporter;
+import io.opentelemetry.sdk.metrics.SdkMeterProvider;
+import io.opentelemetry.sdk.metrics.export.PeriodicMetricReader;
+import java.time.Duration;
 
 @SpringBootApplication
 @RestController
@@ -47,10 +52,23 @@ public class DemoApplication {
 				.build();
 
 		// TODO (Metrics) メトリクスの設定
+		// メトリクスエクスポーターの設定
+		OtlpGrpcMetricExporter metricExporter = OtlpGrpcMetricExporter.builder()
+				.setEndpoint("http://otel-collector:4317") // ここにCollectorのエンドポイントを設定
+				.build();
+
+		SdkMeterProvider sdkMeterProvider = SdkMeterProvider.builder()
+				.registerMetricReader(PeriodicMetricReader.builder(metricExporter)
+						.setInterval(Duration.ofSeconds(10)) // メトリクスを送信する間隔を設定
+						.build())
+				.setResource(resource)
+				.build();
 
 		// TODO (Metrics) OpenTelemetrySdkへ登録
+		// MeterProviderを登録する
 		OpenTelemetry openTelemetry = OpenTelemetrySdk.builder()
 				.setTracerProvider(sdkTracerProvider)
+				.setMeterProvider(sdkMeterProvider)
 				.setPropagators(ContextPropagators.create(TextMapPropagator
 						.composite(W3CTraceContextPropagator.getInstance(), W3CBaggagePropagator.getInstance())))
 				.build();
