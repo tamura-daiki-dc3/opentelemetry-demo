@@ -20,9 +20,11 @@ public class GreetingController {
    private final Logger logger = LogManager.getLogger(GreetingController.class.getName());
 
    // TODO (Trace) Tracerプライベート変数を追加
+   // TODO (Metrics) Meter, LongCounterプライベート変数を追加
 
    // TODO (Trace) コンストラクタの引数にOpenTelemetryを追加
    // TODO (Trace) コンストラクタ内でtracer変数を初期化
+   // TODO (Metrics) コンストラクタ内でmetrics変数を初期化
    public GreetingController() {
    }
 
@@ -37,6 +39,8 @@ public class GreetingController {
       // TODO (Trace) スパンの終了コードを追加
 
       logger.info("end greeting");
+
+      // TODO (Metrics) カウンターを1ずつ増加するコードを追加
       return new Greeting(counter.incrementAndGet(), String.format(template, name));
    }
 

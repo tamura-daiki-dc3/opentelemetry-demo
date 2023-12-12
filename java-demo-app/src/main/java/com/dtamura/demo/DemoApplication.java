@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 // TODO (Trace) import文を追加
 
-// ここまで
+// TODO (Metrics) import文を追加
 
 @SpringBootApplication
 @RestController
@@ -18,6 +18,6 @@ public class DemoApplication {
 
 	// TODO (Trace) OpenTelemetry初期化コードの追加
 
-	// ここまで
+	// TODO (Metrics) メトリクスの設定・OpenTelemetrySdkへ登録
 
 }
