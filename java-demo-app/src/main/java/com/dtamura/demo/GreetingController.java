@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-// TODO (Trace) import文を追加ここから
+// TODO (Trace) import文を追加
 import io.opentelemetry.api.OpenTelemetry;
 import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.api.trace.Tracer;
@@ -18,7 +18,7 @@ import io.opentelemetry.context.Context;
 import io.opentelemetry.context.propagation.TextMapGetter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.bind.annotation.RequestHeader;
-// ここまで
+// TODO (Metrics) import文を追加
 
 @RestController
 public class GreetingController {
@@ -31,6 +31,7 @@ public class GreetingController {
    // TODO (Trace) Tracerプライベート変数を追加
    private final Tracer tracer;
    private final OpenTelemetry openTelemetry;
+   // TODO (Metrics) Meter, LongCounterプライベート変数を追加
 
    // HTTPヘッダから、トレースID等の情報を抽出するために使われるgetter関数
    private final TextMapGetter<HttpHeaders> getter = new TextMapGetter<HttpHeaders>() {
@@ -56,6 +57,7 @@ public class GreetingController {
 
    // TODO (Trace) コンストラクタの引数にOpenTelemetryを追加
    // TODO (Trace) コンストラクタ内でtracer変数を初期化
+   // TODO (Metrics) コンストラクタ内でmetrics変数を初期化
    public GreetingController(OpenTelemetry openTelemetry) {
       this.openTelemetry = openTelemetry;
       this.tracer = openTelemetry.getTracer(GreetingController.class.getName(), "0.1.0");
@@ -80,6 +82,9 @@ public class GreetingController {
       }
 
       logger.info("end greeting");
+
+      // TODO (Metrics) カウンターを1ずつ増加するコードを追加
+
       return new Greeting(counter.incrementAndGet(), String.format(template, name));
    }
 

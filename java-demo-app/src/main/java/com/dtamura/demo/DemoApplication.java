@@ -17,7 +17,7 @@ import io.opentelemetry.api.baggage.propagation.W3CBaggagePropagator;
 import io.opentelemetry.api.trace.propagation.W3CTraceContextPropagator;
 import io.opentelemetry.context.propagation.ContextPropagators;
 import io.opentelemetry.context.propagation.TextMapPropagator;
-// ここまで
+// TODO (Metrics) import文を追加
 
 @SpringBootApplication
 @RestController
@@ -46,7 +46,9 @@ public class DemoApplication {
 				.setResource(resource)
 				.build();
 
-		// TracerProviderを登録する
+		// TODO (Metrics) メトリクスの設定
+
+		// TODO (Metrics) OpenTelemetrySdkへ登録
 		OpenTelemetry openTelemetry = OpenTelemetrySdk.builder()
 				.setTracerProvider(sdkTracerProvider)
 				.setPropagators(ContextPropagators.create(TextMapPropagator
