@@ -4,9 +4,12 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
+	"os"
 
 	log "github.com/sirupsen/logrus"
+	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/propagation"
 	"go.opentelemetry.io/otel/trace"
 )
 
@@ -29,48 +32,43 @@ func pingHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func ping(ctx context.Context) string {
-	_, span := tracer.Start(ctx, "pong")
+	ctx, span := tracer.Start(ctx, "pong", trace.WithSpanKind(trace.SpanKindProducer))
 	defer span.End()
 
-	// // create http request
-	// client := &http.Client{}
+	// create http request
+	client := &http.Client{}
 
-	// target := os.Getenv("PING_TARGET_URL")
-	// req, err := http.NewRequest("GET", target+"/ping", nil)
-	// if err != nil {
-	// 	log.WithFields(log.Fields{
-	// 		"dd": getDDLogFields(span),
-	// 	}).Error(err)
-	// 	return ""
-	// }
-	// err = tracer.Inject(span.Context(), tracer.HTTPHeadersCarrier(req.Header))
-	// if err != nil {
-	// 	log.WithFields(log.Fields{
-	// 		"dd": getDDLogFields(span),
-	// 	}).Warn(err)
-	// }
-	// req.Header.Add("Content-Type", "application/json")
+	target := os.Getenv("PING_TARGET_URL")
+	req, err := http.NewRequest("GET", target+"/greeting", nil)
+	if err != nil {
+		log.Error(err)
+		return ""
+	}
+	propagator := otel.GetTextMapPropagator()
+	propagator.Inject(ctx, propagation.HeaderCarrier(req.Header))
 
-	// // Start Request
-	// resp, err := client.Do(req)
-	// if err != nil {
-	// 	log.WithFields(log.Fields{
-	// 		"dd": getDDLogFields(span),
-	// 	}).Error(err)
-	// 	span.Finish(tracer.WithError(err))
-	// 	return ""
-	// }
-	// defer resp.Body.Close()
+	if err != nil {
+		log.Warn(err)
+	}
+	req.Header.Add("Content-Type", "application/json")
 
-	// var data map[string]string
-	// if err := json.NewDecoder(resp.Body).Decode(&data); err != nil {
-	// 	log.WithFields(log.Fields{
-	// 		"dd": getDDLogFields(span),
-	// 	}).Error(err)
-	// 	span.Finish(tracer.WithError(err))
-	// 	return ""
-	// }
-	// span.Finish(tracer.WithError(err))
+	// Start Request
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Error(err)
+		span.End()
+		return ""
+	}
+	defer resp.Body.Close()
+
+	var data map[string]string
+	if err := json.NewDecoder(resp.Body).Decode(&data); err != nil {
+		log.Error(err)
+		span.RecordError(err)
+		span.End()
+		return ""
+	}
+	span.End()
 
 	return "ping"
 }
