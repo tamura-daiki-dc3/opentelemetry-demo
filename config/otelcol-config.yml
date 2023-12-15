@@ -15,10 +15,6 @@ receivers:
 exporters:
   logging:
     verbosity: detailed
-  otlp:
-    endpoint: "jaeger:4317"
-    tls:
-      insecure: true
   otlp/tempo:
     endpoint: "tempo:4317"
     tls:
@@ -47,11 +43,11 @@ service:
     traces:
       receivers: [otlp]
       processors: [batch]
-      exporters: [logging, spanmetrics, otlp/tempo]
+      exporters: [spanmetrics, otlp/tempo]
     metrics:
       receivers: [otlp, spanmetrics]
       processors: [filter, batch]
-      exporters: [logging, prometheus]
+      exporters: [prometheus]
     logs:
       receivers: [otlp]
       processors: [batch]
