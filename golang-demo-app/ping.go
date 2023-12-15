@@ -32,7 +32,7 @@ func pingHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func ping(ctx context.Context) string {
-	ctx, span := tracer.Start(ctx, "pong", trace.WithSpanKind(trace.SpanKindProducer))
+	ctx, span := tracer.Start(ctx, "pong", trace.WithSpanKind(trace.SpanKindServer))
 	defer span.End()
 
 	// create http request
