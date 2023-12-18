@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import io.opentelemetry.api.OpenTelemetry;
 import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.api.trace.SpanKind;
+import io.opentelemetry.api.trace.StatusCode;
 import io.opentelemetry.api.trace.Tracer;
 import io.opentelemetry.context.Context;
 import io.opentelemetry.context.Scope;
@@ -82,6 +83,8 @@ public class GreetingController {
          hoge();
          span.setAttribute(io.opentelemetry.semconv.SemanticAttributes.HTTP_RESPONSE_STATUS_CODE, 200);
          span.setAttribute(io.opentelemetry.semconv.SemanticAttributes.HTTP_REQUEST_METHOD, "GET");
+         span.setStatus(StatusCode.OK);
+
       } finally {
          span.end();
       }
