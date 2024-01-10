@@ -55,6 +55,20 @@ services:
       - 9100
     logging: *logging
 
+  process-exporter:
+    image: ncabatoff/process-exporter:latest
+    restart: unless-stopped
+    volumes:
+      - /proc:/host/proc:ro
+      - ./config/process-exporter.yml:/config/config.yml
+    command:
+      - "--procfs=/host/proc"
+      - "-config.path=/config/config.yml"
+    ports:
+      - 9256
+    depends_on:
+      - loki
+
   ########################
   # Loki
   ########################
