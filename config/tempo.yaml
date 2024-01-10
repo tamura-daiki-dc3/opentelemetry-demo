@@ -46,11 +46,15 @@ metrics_generator:
 
 storage:
   trace:
-    backend: local                     # backend configuration to use
+    backend: s3                     # backend configuration to use
+    s3:
+      endpoint: minio:9000
+      access_key: mimir
+      secret_key: supersecret
+      insecure: true
+      bucket: tempo
     wal:
       path: /tmp/tempo/wal             # where to store the the wal locally
-    local:
-      path: /tmp/tempo/blocks
 
 overrides:
   defaults:
