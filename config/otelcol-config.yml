@@ -1,7 +1,6 @@
 # Copyright The OpenTelemetry Authors
 # SPDX-License-Identifier: Apache-2.0
 
-
 receivers:
   otlp:
     protocols:
@@ -13,18 +12,26 @@ receivers:
             - "https://*"
 
 exporters:
-  logging:
+  debug:
     verbosity: detailed
+  awss3:
+    s3uploader:
+      s3_bucket: otelcol
+      endpoint: minio:9000
+      s3_force_path_style: true
+      disable_ssl: true
   otlp/tempo:
     endpoint: "tempo:4317"
     tls:
       insecure: true
-  prometheus:
-    endpoint: "otel-collector:9464"
+  prometheusremotewrite:
+    endpoint: http://prometheus:9090/api/v1/write
+    # endpoint: http://mimir:9009/api/v1/push
+    tls:
+      insecure: true
+    send_metadata: true
     resource_to_telemetry_conversion:
       enabled: true
-    enable_open_metrics: true
-
 
 processors:
   batch:
@@ -37,18 +44,24 @@ processors:
 
 connectors:
   spanmetrics:
+    exemplars:
+      enabled: true
+      max_per_data_point: 10000
 
 service:
+  telemetry:
+    logs:
+      level: INFO
   pipelines:
     traces:
       receivers: [otlp]
       processors: [batch]
-      exporters: [spanmetrics, otlp/tempo]
+      exporters: [spanmetrics, otlp/tempo, awss3]
     metrics:
       receivers: [otlp, spanmetrics]
       processors: [filter, batch]
-      exporters: [prometheus]
+      exporters: [prometheusremotewrite, awss3]
     logs:
       receivers: [otlp]
       processors: [batch]
-      exporters: [logging]
+      exporters: [debug, awss3]

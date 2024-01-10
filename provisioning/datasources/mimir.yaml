@@ -12,5 +12,8 @@ datasources:
     jsonData:
       httpHeaderName1: "X-Scope-OrgID"
       alertmanagerUid: "alertmanager"
+      exemplarTraceIdDestinations:
+        - datasourceUid: tempo
+          name: trace_id
     secureJsonData:
       httpHeaderValue1: "demo"

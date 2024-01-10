@@ -23,3 +23,6 @@ datasources:
     isDefault: true
     jsonData:
       timeInterval: 1s
+      exemplarTraceIdDestinations:
+        - datasourceUid: tempo
+          name: trace_id
