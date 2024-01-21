@@ -3,7 +3,7 @@
 import type { Faro } from "@grafana/faro-react";
 import { getWebInstrumentations, ReactIntegration } from "@grafana/faro-react";
 import { TracingInstrumentation } from "@grafana/faro-web-tracing";
-import { initializeFaro } from "@grafana/faro-web-sdk";
+import { initializeFaro, ErrorsInstrumentation, WebVitalsInstrumentation, SessionInstrumentation, ConsoleInstrumentation, LogLevel } from "@grafana/faro-web-sdk";
 
 export function initFaro(): Faro {
   const faro = initializeFaro({
@@ -19,10 +19,12 @@ export function initFaro(): Faro {
     },
 
     instrumentations: [
-      // Mandatory, overwriting the instrumentations array would cause the default instrumentations to be omitted
-      ...getWebInstrumentations({
-        captureConsole: true,
+      new ErrorsInstrumentation(),
+      new WebVitalsInstrumentation(),
+      new ConsoleInstrumentation({
+        disabledLevels: [LogLevel.TRACE, LogLevel.ERROR], // console.log will be captured
       }),
+      new SessionInstrumentation(),
 
       // Mandatory, initialization of the tracing package
       new TracingInstrumentation({
