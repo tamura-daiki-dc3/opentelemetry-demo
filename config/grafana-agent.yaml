@@ -1,0 +1,64 @@
+server:
+  log_level: debug
+
+metrics:
+  wal_directory: /tmp/agent
+  global:
+    scrape_interval: 1s
+    scrape_timeout: 1s
+    evaluation_interval: 1s
+    remote_write:
+      - url: http://prometheus:9090/api/v1/write
+  configs:
+    - name: demo
+
+traces:
+  configs:
+  - name: demo
+    receivers:
+      otlp:
+        protocols:
+          grpc:
+          http:
+    remote_write:
+      - endpoint: tempo:4317
+        insecure: true
+    batch:
+      timeout: 5s
+      send_batch_size: 100
+
+logs:
+  configs:
+  - name: demo
+    clients:
+      - url: http://loki:3100/loki/api/v1/push
+    positions:
+      filename: /tmp/positions.yaml
+    scrape_configs:
+
+integrations:
+  app_agent_receiver:
+    autoscrape:
+      enable: true
+      metrics_instance: demo
+    instance: demo_frontend
+    logs_instance: demo
+    logs_labels:
+      app: grafana-demo
+      kind: ""
+    logs_send_timeout: "5s"
+    server:
+      api_key: supersecret
+      host: "0.0.0.0"
+      port: 8027
+      cors_allowed_origins:
+        - "http://localhost:8080"
+        - "*"
+      max_allowed_payload_size: 5e+07
+      rate_limiting:
+        burstiness: 100
+        enabled: true
+        rps: 100
+    sourcemaps:
+      download: true
+    traces_instance: demo

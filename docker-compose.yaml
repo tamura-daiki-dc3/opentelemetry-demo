@@ -154,6 +154,25 @@ services:
     logging: *logging
     depends_on:
       - loki
+    # Grafana Agent
+  agent:
+    image: grafana/agent:latest
+    volumes:
+      - ./config/grafana-agent.yaml:/etc/agent-config/agent.yaml
+    entrypoint:
+      - /bin/grafana-agent
+      - -server.http.address=0.0.0.0:12345
+      - -config.file=/etc/agent-config/agent.yaml
+      - -metrics.wal-directory=/tmp/agent/wal
+      - -enable-features=integrations-next
+      - -config.expand-env
+      - -config.enable-read-api
+    ports:
+      - "12345:12345"
+      - 8027:8027
+    depends_on:
+      - otel-collector
+      - grafana
 
   mailhog:
     image: mailhog/mailhog:v1.0.1
@@ -254,7 +273,6 @@ services:
       - 3003:3000
     logging: *logging
     depends_on:
-      - kafka
       - loki
 
   golang-kafka-consumer:
@@ -267,7 +285,6 @@ services:
       - ENV=prod
     logging: *logging
     depends_on:
-      - kafka
       - loki
 
   kafka:
