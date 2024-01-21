@@ -58,6 +58,10 @@ scrape_configs:
         labels:
           pod: "mimir"
 
+  - job_name: kafka
+    static_configs:
+      - targets: ["kafka-exporter:9308"]
+
 # remote_write:
 #   - url: http://victoriametrics:8428/api/v1/write
 

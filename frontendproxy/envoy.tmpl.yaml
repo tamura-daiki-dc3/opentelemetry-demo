@@ -37,6 +37,8 @@ static_resources:
                           route: { cluster: opentelemetry_collector_http, prefix_rewrite: "/" }
                         - match: { prefix: "/ping" }
                           route: { cluster: golang-demo-app }
+                        - match: { prefix: "/produce" }
+                          route: { cluster: golang-kafka-producer }
                         - match: { prefix: "/greeting" }
                           route: { cluster: java-demo-app }
                         - match: { prefix: "/" }
@@ -87,6 +89,18 @@ static_resources:
                   address:
                     socket_address:
                       address: golang-demo-app
+                      port_value: 3000
+    - name: golang-kafka-producer
+      type: STRICT_DNS
+      lb_policy: ROUND_ROBIN
+      load_assignment:
+        cluster_name: golang-kafka-producer
+        endpoints:
+          - lb_endpoints:
+              - endpoint:
+                  address:
+                    socket_address:
+                      address: golang-kafka-producer
                       port_value: 3000
     - name: java-demo-app
       type: STRICT_DNS
