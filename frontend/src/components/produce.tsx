@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { Button } from "@mui/material";
+import SendIcon from '@mui/icons-material/Send';
 
 export default function Produce() {
-
   const [msg, setMsg] = useState();
 
   // pingしてmsgに設定
@@ -28,7 +29,9 @@ export default function Produce() {
   return (
     <>
       <div>
-        <button onClick={handleProduce}>/produce</button>
+        <Button variant="contained" onClick={handleProduce} endIcon={<SendIcon />}>
+          /produce
+        </Button>
         <pre>{JSON.stringify(msg, null, 2)}</pre>
       </div>
     </>

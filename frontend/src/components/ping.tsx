@@ -2,8 +2,10 @@
 
 import { useState, useEffect } from "react";
 
-export default function Ping() {
+import { Button } from "@mui/material";
+import SendIcon from "@mui/icons-material/Send";
 
+export default function Ping() {
   const [msg, setMsg] = useState();
 
   // pingしてmsgに設定
@@ -28,7 +30,9 @@ export default function Ping() {
   return (
     <>
       <div>
-        <button onClick={handlePing}>/ping</button>
+        <Button variant="contained" onClick={handlePing} endIcon={<SendIcon />}>
+          /ping
+        </Button>
         <pre>{JSON.stringify(msg, null, 2)}</pre>
       </div>
     </>

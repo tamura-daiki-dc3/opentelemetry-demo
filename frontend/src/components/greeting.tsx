@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { Button } from "@mui/material";
+import SendIcon from '@mui/icons-material/Send';
 
 export default function Greeting() {
   const [msg, setMsg] = useState();
@@ -27,7 +29,9 @@ export default function Greeting() {
   return (
     <>
       <div>
-        <button onClick={handlePing}>/greeting</button>
+        <Button variant="contained" onClick={handlePing} endIcon={<SendIcon />}>
+          /greeting
+        </Button>
         <pre>{JSON.stringify(msg, null, 2)}</pre>
       </div>
     </>

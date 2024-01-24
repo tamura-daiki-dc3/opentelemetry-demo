@@ -1,30 +1,49 @@
 "use client";
 
-import Produce from '../components/produce';
-import Greeting from '../components/greeting';
-import Ping from '../components/ping';
+import Container from "@mui/material/Container";
+import Typography from "@mui/material/Typography";
+import Produce from "../components/produce";
+import Greeting from "../components/greeting";
+import Ping from "../components/ping";
 
 export default function Home() {
   return (
-    <div>
-      <h1>OpenTelemetryを始めてみよう！</h1>
+    <Container maxWidth="lg">
+      <div>
+        <Typography variant="h3" component="h3">
+          OpenTelemetryを始めてみよう
+        </Typography>
 
+        <hr />
 
-      <h2>Javaコースの方用</h2>
-      <p>ボタンを押下すると、<pre>GET /greeting</pre>リクエストをJavaコンテナへ送信します</p>
-      <Greeting></Greeting>
+        <Typography variant="h4" component="h4">
+          Javaコースの方用
+        </Typography>
+        <p>
+          ボタンを押下すると、<pre>GET /greeting</pre>リクエストをJavaコンテナへ送信します
+        </p>
+        <Greeting></Greeting>
 
-      <hr />
+        <hr />
 
-      <h2>Go言語コースの方用</h2>
-      <p>ボタンを押下すると、<pre>GET /ping</pre>リクエストをGoコンテナへ送信します</p>
-      <Ping></Ping>
+        <Typography variant="h4" component="h4">
+          Go言語コースの方用
+        </Typography>
+        <p>
+          ボタンを押下すると、<pre>GET /ping</pre>リクエストをGoコンテナへ送信します
+        </p>
+        <Ping></Ping>
 
-      <hr />
+        <hr />
 
-      <h2>Kafkaへメッセージ送信</h2>
-      <p>ボタンを押下すると、<pre>GET /produce</pre>リクエストをGoコンテナ <pre>golang-kafka-producer</pre>へ送信します</p>
-      <Produce></Produce>
-    </div>
-  )
+        <Typography variant="h4" component="h4">
+          Kafkaへメッセージ送信
+        </Typography>
+        <p>
+          ボタンを押下すると、<pre>GET /produce</pre>リクエストをGoコンテナ <pre>golang-kafka-producer</pre>へ送信します
+        </p>
+        <Produce></Produce>
+      </div>
+    </Container>
+  );
 }
