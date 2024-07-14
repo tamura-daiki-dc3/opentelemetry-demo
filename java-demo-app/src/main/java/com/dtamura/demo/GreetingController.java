@@ -4,6 +4,12 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.ArrayList;
 import java.util.List;
 
+import java.net.URL;
+import java.net.HttpURLConnection;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpHeaders;
@@ -11,6 +17,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.service.invoker.HttpClientAdapter;
 
 import io.opentelemetry.api.OpenTelemetry;
 import io.opentelemetry.api.trace.Span;
@@ -22,6 +29,7 @@ import io.opentelemetry.context.Scope;
 import io.opentelemetry.api.metrics.LongCounter;
 import io.opentelemetry.api.metrics.Meter;
 import io.opentelemetry.context.propagation.TextMapGetter;
+import io.opentelemetry.context.propagation.TextMapSetter;
 
 @RestController
 public class GreetingController {
@@ -56,15 +64,48 @@ public class GreetingController {
       }
    };
 
+   TextMapSetter<HttpURLConnection> setter = new TextMapSetter<HttpURLConnection>() {
+      @Override
+      public void set(HttpURLConnection carrier, String key, String value) {
+         // Insert the context as Header
+         carrier.setRequestProperty(key, value);
+      }
+   };
+
    public GreetingController(OpenTelemetry openTelemetry) {
       this.openTelemetry = openTelemetry;
       this.tracer = openTelemetry.getTracer(GreetingController.class.getName(), "0.1.0");
       // メトリクスの設定
       this.meter = openTelemetry.getMeterProvider().get(GreetingController.class.getName());
       this.longCounter = meter.counterBuilder("greeting_requests")
-                     .setDescription("Total number of greeting requests")
-                     .setUnit("1")
-                     .build();
+            .setDescription("Total number of greeting requests")
+            .setUnit("1")
+            .build();
+   }
+
+   @GetMapping("/hello")
+   public String hello(@RequestHeader HttpHeaders headers) {
+
+      Context extractedContext = this.openTelemetry.getPropagators().getTextMapPropagator()
+            .extract(Context.current(), headers, this.getter);
+
+      Span span = tracer.spanBuilder("hello").setSpanKind(SpanKind.SERVER)
+            .setParent(extractedContext).startSpan();
+      try (Scope scope = span.makeCurrent()) {
+         URL url = new URL("http://localhost:8081/greeting");
+         HttpURLConnection con = (HttpURLConnection) url.openConnection();
+         this.openTelemetry.getPropagators().getTextMapPropagator().inject(Context.current(), con,
+               this.setter);
+         con.connect();
+         System.out.println(con.getResponseCode());
+
+      } catch (Exception e) {
+         System.out.println(e);
+      } finally {
+         span.end();
+      }
+
+      return "OK";
    }
 
    @GetMapping("/greeting")
